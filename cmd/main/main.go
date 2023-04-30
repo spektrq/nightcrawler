@@ -1,8 +1,9 @@
 package main
 
 import (
-	crawler "internal/crawler"
 	"sync"
+
+	crawler "github.com/spektrq/nightcrawler/internal/crawler"
 )
 
 func main() {
@@ -10,7 +11,7 @@ func main() {
 	crawedLinksChannel := make(chan string)
 	pendingCountChannel := make(chan int)
 
-	siteToCrawl := "https://theuselessweb.com/"
+	siteToCrawl := "https://crawler-test.com/"
 
 	go func() {
 		crawedLinksChannel <- siteToCrawl
@@ -18,10 +19,10 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	//go ProcessCrawledLinks(sitesChannel, crawedLinksChannel, pendingCountChannel)
-	//go MonitorCrawling(sitesChannel, crawedLinksChannel, pendingCountChannel)
+	go crawler.ProcessCrawledLinks(sitesChannel, crawedLinksChannel, pendingCountChannel)
+	go crawler.MonitorCrawling(sitesChannel, crawedLinksChannel, pendingCountChannel)
 
-	var numCrawlerThreads = 50
+	var numCrawlerThreads = 100
 	for i := 0; i < numCrawlerThreads; i++ {
 		wg.Add(1)
 		go crawler.CrawlWebpage(&wg, sitesChannel, crawedLinksChannel, pendingCountChannel)
